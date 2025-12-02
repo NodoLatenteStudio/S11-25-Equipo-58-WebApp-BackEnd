@@ -37,7 +37,7 @@ services:
         value: WARN
 
   # Base de datos PostgreSQL
-  - type: pspg
+  - type: pg
     name: ecoshop-db
     region: oregon
     plan: free
