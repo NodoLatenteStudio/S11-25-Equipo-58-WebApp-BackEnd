@@ -8,18 +8,17 @@ services:
   # Servicio Web - Backend Spring Boot
   - type: web
     name: ecoshop-backend
-    env: docker
+    env: docker          
     region: oregon
     plan: free
-    dockerfilePath: ./backend/ecoshop/Dockerfile
-    dockerContext: ./backend/ecoshop
-    healthCheckPath: /api/v1/health
+    dockerfilePath: ./backend/ecoshop/Dockerfile   
+    dockerContext: ./backend/ecoshop               
+    healthCheckPath: /api/v1/health                
     envVars:
       # Perfil de Spring para producción
       - key: SPRING_PROFILES_ACTIVE
         value: prod
-      # Base de datos - Se conectará automáticamente a la base de datos PostgreSQL
-      # Render proporciona connectionString que ya incluye la URL completa en formato JDBC
+      # Base de datos - Render inyecta estos datos desde 'ecoshop-db'
       - key: DB_URL
         fromDatabase:
           name: ecoshop-db
@@ -42,4 +41,3 @@ services:
         value: INFO
       - key: SECURITY_LOG_LEVEL
         value: WARN
-
