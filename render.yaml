@@ -36,11 +36,3 @@ services:
       - key: SECURITY_LOG_LEVEL
         value: WARN
 
-  # Base de datos PostgreSQL
-  - type: pg
-    name: ecoshop-db
-    region: oregon
-    plan: free
-    databaseName: ecoshop
-    user: ecoshop_user
-
