@@ -2,11 +2,12 @@ services:
   # Servicio Web - Backend Spring Boot
   - type: web
     name: ecoshop-backend
-    env: java
+    env: docker
     region: oregon
     plan: free
-    buildCommand: ./mvnw clean install -DskipTests
-    startCommand: java -jar target/ecoshop-0.0.1-SNAPSHOT.jar
+    dockerfilePath: ./backend/ecoshop/Dockerfile
+    dockerContext: ./backend/ecoshop
+    healthCheckPath: /api/v1/health
     envVars:
       # Perfil de Spring para producción
       - key: SPRING_PROFILES_ACTIVE
