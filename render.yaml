@@ -1,3 +1,9 @@
+databases:
+  # Base de datos PostgreSQL
+  - name: ecoshop-db
+    plan: free
+    region: oregon
+
 services:
   # Servicio Web - Backend Spring Boot
   - type: web
