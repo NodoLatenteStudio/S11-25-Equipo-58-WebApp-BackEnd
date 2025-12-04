@@ -14,9 +14,16 @@ spring:
     show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        # dialect ya no es necesario - Hibernate lo detecta automáticamente desde PostgreSQL 15+
         format_sql: true
     open-in-view: false
+  # Configuración de Spring Security OAuth2 Resource Server (JWT)
+  # Spring obtendrá automáticamente las claves públicas desde: {issuer-uri}/.well-known/jwks.json
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${CLERK_ISSUER:}  # Debe coincidir exactamente con el issuer del token JWT
 
 server:
   port: ${PORT:${SERVER_PORT:8080}}  # Render usa PORT, local usa SERVER_PORT
@@ -29,3 +36,12 @@ logging:
     com.ecoshop: ${LOG_LEVEL:INFO}
     org.springframework.security: ${SECURITY_LOG_LEVEL:WARN}
 
+# Configuración de Clerk
+# IMPORTANTE: Configura estas propiedades como variables de entorno en producción
+# Nunca commitees las claves secretas en el repositorio
+clerk:
+  secret-key: ${CLERK_SECRET_KEY:}  # sk_test_xxxxx o sk_live_xxxxx
+  publishable-key: ${CLERK_PUBLISHABLE_KEY:}  # pk_test_xxxxx o pk_live_xxxxx
+  webhook-secret: ${CLERK_WEBHOOK_SECRET:}  # whsec_xxxxx
+  issuer: ${CLERK_ISSUER:}  # https://your-clerk-instance.clerk.accounts.dev
+  api-url: ${CLERK_API_URL:https://api.clerk.com}  # Sin /v1 aquí - se añade según necesidad

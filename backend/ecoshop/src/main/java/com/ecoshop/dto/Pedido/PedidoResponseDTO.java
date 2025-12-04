@@ -1,50 +1,121 @@
 package com.ecoshop.dto.Pedido;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Data Transfer Object (DTO) para respuestas de pedidos.
+ * 
+ * Esta clase representa los datos de un pedido que se transfieren desde
+ * el servidor al cliente en operaciones de consulta (GET).
+ * 
+ * ¿Por qué usar DTOs de respuesta?
+ * - Control sobre qué datos se exponen en la API
+ * - Evita exponer información sensible o innecesaria
+ * - Permite transformar datos antes de enviarlos al cliente
+ * - Facilita versionado de la API
+ * 
+ * Campos:
+ * - pedidoId: Identificador único del pedido
+ * - usuarioId: ID del usuario que realizó el pedido
+ * - emailUsuario: Email del usuario (dato extra útil para administradores)
+ * - fechaPedido: Fecha en que se realizó el pedido
+ * - estado: Estado actual del pedido
+ * - total: Total del pedido en moneda
+ * - direccionEnvio: Dirección de envío del pedido
+ * - metodoPago: Método de pago utilizado
+ * - idTransaccionPago: ID de la transacción de pago
+ * - huellaCarbonoTotalKg: Huella de carbono total del pedido en kg CO₂
+ */
+@Data // Genera automáticamente getters, setters, toString, equals y hashCode (Lombok)
+@Builder // Permite construir objetos usando el patrón Builder (Lombok)
+@NoArgsConstructor // Genera constructor sin argumentos
+@AllArgsConstructor // Genera constructor con todos los argumentos (Lombok)
 public class PedidoResponseDTO {
-  private Integer pedidoId;
-  private Integer usuarioId;
-  private String emailUsuario; // Dato extra útil para el admin
-  private LocalDateTime fechaPedido;
-  private String estado;
-  private BigDecimal total;
-  private String direccionEnvio;
-  private String metodoPago;
-  private String idTransaccionPago;
-  private BigDecimal huellaCarbonoTotalKg;
 
-  public PedidoResponseDTO() {}
+    /**
+     * Identificador único del pedido.
+     * 
+     * Este ID es generado automáticamente por la base de datos
+     * cuando se crea el pedido.
+     */
+    private Integer pedidoId;
 
-  // --- GETTERS Y SETTERS ---
-  public Integer getPedidoId() { return pedidoId; }
-  public void setPedidoId(Integer pedidoId) { this.pedidoId = pedidoId; }
+    /**
+     * ID del usuario que realizó el pedido.
+     * 
+     * Referencia al usuario que creó este pedido.
+     */
+    private Integer usuarioId;
 
-  public Integer getUsuarioId() { return usuarioId; }
-  public void setUsuarioId(Integer usuarioId) { this.usuarioId = usuarioId; }
+    /**
+     * Email del usuario que realizó el pedido.
+     * 
+     * Dato extra útil para administradores que necesitan identificar
+     * rápidamente al usuario sin hacer una consulta adicional.
+     */
+    private String emailUsuario;
 
-  public String getEmailUsuario() { return emailUsuario; }
-  public void setEmailUsuario(String emailUsuario) { this.emailUsuario = emailUsuario; }
+    /**
+     * Fecha en que se realizó el pedido.
+     * 
+     * Esta fecha se establece automáticamente cuando se crea el pedido
+     * y no se puede modificar posteriormente.
+     */
+    private LocalDateTime fechaPedido;
 
-  public LocalDateTime getFechaPedido() { return fechaPedido; }
-  public void setFechaPedido(LocalDateTime fechaPedido) { this.fechaPedido = fechaPedido; }
+    /**
+     * Estado actual del pedido.
+     * 
+     * Valores posibles:
+     * - "pendiente_pago": El pedido está pendiente de pago
+     * - "procesando": El pedido está siendo procesado
+     * - "enviado": El pedido ha sido enviado
+     * - "entregado": El pedido ha sido entregado
+     * - "cancelado": El pedido ha sido cancelado
+     */
+    private String estado;
 
-  public String getEstado() { return estado; }
-  public void setEstado(String estado) { this.estado = estado; }
+    /**
+     * Total del pedido en moneda.
+     * 
+     * Representa la suma total de todos los items del pedido.
+     * Ejemplos: 14990.00, 15990.50, 9999.99
+     */
+    private BigDecimal total;
 
-  public BigDecimal getTotal() { return total; }
-  public void setTotal(BigDecimal total) { this.total = total; }
+    /**
+     * Dirección de envío del pedido.
+     * 
+     * Dirección completa donde se debe enviar el pedido.
+     */
+    private String direccionEnvio;
 
-  public String getDireccionEnvio() { return direccionEnvio; }
-  public void setDireccionEnvio(String direccionEnvio) { this.direccionEnvio = direccionEnvio; }
+    /**
+     * Método de pago utilizado.
+     * 
+     * Ejemplos: "tarjeta_credito", "transferencia_bancaria", "paypal", "efectivo"
+     */
+    private String metodoPago;
 
-  public String getMetodoPago() { return metodoPago; }
-  public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
+    /**
+     * ID de la transacción de pago.
+     * 
+     * Identificador de la transacción de pago proporcionado por el procesador de pagos.
+     * Útil para rastrear y verificar pagos.
+     */
+    private String idTransaccionPago;
 
-  public String getIdTransaccionPago() { return idTransaccionPago; }
-  public void setIdTransaccionPago(String idTransaccionPago) { this.idTransaccionPago = idTransaccionPago; }
-
-  public BigDecimal getHuellaCarbonoTotalKg() { return huellaCarbonoTotalKg; }
-  public void setHuellaCarbonoTotalKg(BigDecimal huellaCarbonoTotalKg) { this.huellaCarbonoTotalKg = huellaCarbonoTotalKg; }
+    /**
+     * Huella de carbono total del pedido en kilogramos de CO₂.
+     * 
+     * Representa la cantidad total de emisiones de CO₂ asociadas al pedido.
+     * Se calcula generalmente sumando la huella de carbono de todos los productos.
+     */
+    private BigDecimal huellaCarbonoTotalKg;
 }

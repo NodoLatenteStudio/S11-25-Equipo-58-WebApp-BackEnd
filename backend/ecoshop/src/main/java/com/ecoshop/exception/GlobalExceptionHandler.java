@@ -44,8 +44,8 @@ public class GlobalExceptionHandler {
      * en la base de datos (ej: producto con ID que no existe).
      * 
      * Ejemplo de uso:
-     * - GET /api/v1/products/999 (producto con ID 999 no existe)
-     * - DELETE /api/v1/products/999 (producto con ID 999 no existe)
+     * - GET /api/v1/productos/999 (producto con ID 999 no existe)
+     * - DELETE /api/v1/productos/999 (producto con ID 999 no existe)
      * 
      * Respuesta HTTP:
      * - Código: 404 (Not Found)
@@ -74,8 +74,8 @@ public class GlobalExceptionHandler {
      * realizar una operación con datos inválidos (ej: certificación no encontrada).
      * 
      * Ejemplo de uso:
-     * - POST /api/v1/products con código de certificación que no existe
-     * - PUT /api/v1/products/1 con código de certificación inválido
+     * - POST /api/v1/productos con código de certificación que no existe
+     * - PUT /api/v1/productos/1 con código de certificación inválido
      * 
      * Respuesta HTTP:
      * - Código: 400 (Bad Request)
@@ -104,8 +104,8 @@ public class GlobalExceptionHandler {
      * con las validaciones definidas en los DTOs (ej: nombre vacío, precio negativo).
      * 
      * Ejemplo de uso:
-     * - POST /api/v1/products con nombre vacío
-     * - PUT /api/v1/products/1 con precio negativo
+     * - POST /api/v1/productos con nombre vacío
+     * - PUT /api/v1/productos/1 con precio negativo
      * 
      * Respuesta HTTP:
      * - Código: 400 (Bad Request)

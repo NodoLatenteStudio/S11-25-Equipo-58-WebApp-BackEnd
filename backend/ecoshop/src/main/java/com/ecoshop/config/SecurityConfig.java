@@ -1,5 +1,8 @@
 package com.ecoshop.config;
 
+import com.ecoshop.repository.UsuarioRepository;
+import com.ecoshop.security.clerk.ClerkJwtAuthenticationConverter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,36 +20,58 @@ import java.util.List;
 /**
  * Configuración de seguridad de Spring Security.
  * 
- * Esta clase configura la seguridad de la aplicación, incluyendo:
- * - Autenticación y autorización
- * - Configuración de CORS (Cross-Origin Resource Sharing)
- * - Configuración de CSRF (Cross-Site Request Forgery)
- * - Gestión de sesiones
+ * ======================================================================================
+ * CONFIGURACIÓN CON OAUTH2 RESOURCE SERVER:
+ * ======================================================================================
+ * 
+ * Spring Security OAuth2 Resource Server maneja automáticamente:
+ * - Validación de firma JWT usando JWKS (cache automático)
+ * - Verificación de expiración y claims estándar
+ * - Integración con el issuer configurado
+ * - Manejo de errores estándar
+ * 
+ * Nuestro convertidor personalizado solo se encarga de:
+ * - Mapear JWT.sub → clerkId → Usuario de BD
+ * - Crear Authentication con el Usuario como principal
+ * 
+ * FLUJO:
+ * ------------
+ * 1. Cliente envía: Authorization: Bearer <token>
+ * 2. Spring Security OAuth2 Resource Server intercepta automáticamente
+ * 3. Spring valida el token JWT (firma, expiración, issuer) usando JWKS de Clerk
+ * 4. ClerkJwtAuthenticationConverter convierte JWT → Authentication:
+ *    a. Extrae clerkId de jwt.getSubject()
+ *    b. Busca Usuario en BD por clerkId
+ *    c. Crea Authentication con Usuario y ROLE_<rol>
+ * 5. SecurityContext contiene el Usuario autenticado
+ * 
+ * ======================================================================================
  * 
  * Configuración actual:
- * - CSRF deshabilitado: Para APIs REST no es necesario (usar tokens JWT en producción)
+ * - CSRF deshabilitado: Para APIs REST no es necesario (usamos tokens JWT de Clerk)
  * - CORS habilitado: Permite solicitudes desde diferentes orígenes
  * - Sesiones stateless: No se mantiene estado de sesión (típico para APIs REST)
- * - Endpoints públicos: /api/v1/health, /api/v1/products/** y /api/v1/certifications/** no requieren autenticación
+ * - OAuth2 Resource Server: Usa JWT de Clerk para autenticación
+ * - Endpoints públicos: /api/v1/health, /api/v1/webhooks/clerk, /api/v1/config/clerk, 
+ *   /api/v1/test/clerk/**, /api/v1/certificaciones/**, /api/v1/productos/**
+ * - Endpoints protegidos: /api/v1/usuarios/**, /api/v1/marcas/**, /api/v1/pedidos/**, 
+ *   /api/v1/pedido-items/**
  * 
- * IMPORTANTE para producción:
- * - Configurar dominios específicos en CORS (no usar "*")
- * - Implementar autenticación JWT para endpoints protegidos
- * - Configurar HTTPS
- * - Revisar y ajustar las políticas de seguridad
  */
-@Configuration // Indica que esta clase contiene configuración de Spring
-@EnableWebSecurity // Habilita la configuración de seguridad web
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final UsuarioRepository usuarioRepository;
+
     /**
-     * Configura la cadena de filtros de seguridad.
+     * Configura la cadena de filtros de seguridad con OAuth2 Resource Server.
      * 
      * Este método define cómo Spring Security maneja las solicitudes HTTP.
      * 
      * Configuraciones aplicadas:
      * 1. CSRF deshabilitado: Para APIs REST no se necesita protección CSRF
-     *    (en producción, usar tokens JWT en su lugar)
      * 
      * 2. CORS habilitado: Permite solicitudes desde diferentes orígenes
      *    (configurado en el método corsConfigurationSource())
@@ -54,22 +79,25 @@ public class SecurityConfig {
      * 3. Sesiones stateless: No se mantiene estado de sesión entre solicitudes
      *    (típico para APIs REST, cada solicitud es independiente)
      * 
- * 4. Autorización de endpoints:
- *    - /api/v1/health: Público (permite acceso sin autenticación)
- *    - /api/v1/products/**: Público (permite acceso sin autenticación)
- *    - /api/v1/certifications/**: Público (permite acceso sin autenticación)
- *    - Cualquier otra ruta: Requiere autenticación (aunque actualmente no hay autenticación configurada)
+     * 4. OAuth2 Resource Server con JWT:
+     *    - Spring valida automáticamente los tokens JWT usando JWKS de Clerk
+     *    - Nuestro convertidor personalizado mapea el JWT → Usuario de BD
+     *    - La configuración del issuer se toma de application.yml:
+     *      spring.security.oauth2.resourceserver.jwt.issuer-uri
+     * 
+     * 5. Autorización de endpoints:
+     *    - Endpoints públicos: No requieren autenticación
+     *    - Endpoints protegidos: Requieren token JWT válido de Clerk
      * 
      * @param http Objeto HttpSecurity para configurar la seguridad
      * @return SecurityFilterChain configurado
      * @throws Exception Si hay un error en la configuración
      */
-    @Bean // Indica que este método devuelve un bean de Spring
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 // Deshabilita CSRF (Cross-Site Request Forgery)
                 // Para APIs REST no es necesario, ya que no usamos cookies de sesión
-                // En producción, usar tokens JWT para autenticación
                 .csrf(AbstractHttpConfigurer::disable)
                 
                 // Habilita CORS y configura la fuente de configuración
@@ -79,21 +107,33 @@ public class SecurityConfig {
                 // No se mantiene estado de sesión entre solicitudes (típico para APIs REST)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 
+                // Configura OAuth2 Resource Server con JWT
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                // Usa nuestro convertidor personalizado para mapear JWT → Usuario
+                                .jwtAuthenticationConverter(new ClerkJwtAuthenticationConverter(usuarioRepository))
+                        )
+                )
+                
                 // Configura la autorización de endpoints
                 .authorizeHttpRequests(auth -> auth
                         // Estos endpoints son públicos (no requieren autenticación)
                         .requestMatchers(
                           "/api/v1/health",
-                          "/api/v1/products/**",
-                          "/api/v1/certifications/**",
-                          "/api/v1/usuarios/**",
-                          "/api/v1/marcas/**",
-                          "/api/v1/productos/**",
-                          "/api/v1/pedidos/**",
-                          "/api/v1/pedido-items/**"
+                          "/api/v1/webhooks/clerk", // Webhooks de Clerk (deben verificar firma)
+                          "/api/v1/config/clerk", // Verificación de configuración de Clerk
+                          "/api/v1/test/clerk/**", // Endpoints de prueba de Clerk (SOLO desarrollo)
+                          "/api/v1/certificaciones/**", // Lectura pública de certificaciones
+                          "/api/v1/productos/**" // Lectura pública de productos
                           ).permitAll()
+                        // Endpoints que requieren autenticación
+                        .requestMatchers(
+                          "/api/v1/usuarios/**", // Gestión de usuarios (requiere autenticación)
+                          "/api/v1/marcas/**", // Gestión de marcas (requiere autenticación)
+                          "/api/v1/pedidos/**", // Gestión de pedidos (requiere autenticación)
+                          "/api/v1/pedido-items/**" // Gestión de items de pedido (requiere autenticación)
+                        ).authenticated()
                         // Cualquier otra solicitud requiere autenticación
-                        // (actualmente no hay autenticación configurada, así que esto no tiene efecto)
                         .anyRequest().authenticated()
                 );
 
@@ -107,7 +147,7 @@ public class SecurityConfig {
      * solicitudes desde diferentes orígenes (dominios, puertos, protocolos).
      * 
      * Configuración actual:
-     * - Orígenes permitidos: Todos (*) - ⚠️ Cambiar en producción
+     * - Orígenes permitidos: Todos (*) - Cambiar en producción
      * - Métodos permitidos: GET, POST, PUT, DELETE, OPTIONS
      * - Headers permitidos: Todos (*)
      * - Headers expuestos: Authorization, Content-Type
@@ -152,4 +192,3 @@ public class SecurityConfig {
         return source;
     }
 }
-
