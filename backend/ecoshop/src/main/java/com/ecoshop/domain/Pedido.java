@@ -8,36 +8,41 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Entidad JPA que representa un pedido en la base de datos.
- * 
- * Esta clase mapea la tabla "Pedidos" en la base de datos PostgreSQL.
- * Cada instancia de esta clase representa una fila en la tabla.
- * 
- * Estructura de la tabla según el esquema:
- * - pedido_id: Identificador único (clave primaria, auto-generado)
- * - usuario_id: Clave foránea a la tabla Usuarios (obligatorio)
- * - fecha_pedido: Fecha en que se realizó el pedido (obligatorio, no actualizable)
- * - estado: Estado del pedido (obligatorio, máximo 15 caracteres)
- *   Valores posibles: 'pendiente_pago', 'procesando', 'enviado', 'entregado', 'cancelado'
- * - total: Total del pedido en moneda (obligatorio, decimal)
- * - direccion_envio: Dirección de envío del pedido (obligatorio, TEXT)
- * - metodo_pago: Método de pago utilizado (opcional, máximo 50 caracteres)
- * - id_transaccion_pago: ID de la transacción de pago (opcional)
- * - huella_carbono_total_kg: Huella de carbono total del pedido en kg CO₂ (opcional, decimal)
- * 
- * Relaciones:
- * - @ManyToOne: Relación con Usuario (usuario_id)
- * - Relación inversa con PedidoItem (cada pedido tiene múltiples items)
- * 
- * Notas importantes:
- * - La relación con Usuario es Many-to-One, lo que significa que cada pedido
- *   pertenece a un único usuario y cada usuario puede tener múltiples pedidos.
- * - La fecha de pedido se genera automáticamente al crear el pedido.
- * - El total del pedido se calcula generalmente a partir de los PedidoItems asociados.
- * - Se usa @JsonIgnore en la relación con Usuario para evitar referencias circulares
- *   durante la serialización JSON (el DTO manejará la exposición del usuarioId).
- */
+    /**
+     * Entidad JPA que representa un pedido en la base de datos.
+     * 
+     * Esta clase mapea la tabla "Pedidos" en la base de datos PostgreSQL.
+     * Cada instancia de esta clase representa una fila en la tabla.
+     * 
+     * Estructura de la tabla según el esquema:
+     * - pedido_id: Identificador único (clave primaria, auto-generado)
+     * - usuario_id: Clave foránea a la tabla Usuarios (obligatorio)
+     * - fecha_pedido: Fecha en que se realizó el pedido (obligatorio, no actualizable)
+     * - estado: Estado del pedido (obligatorio, máximo 15 caracteres)
+     *   Valores posibles: 'pendiente_pago', 'procesando', 'enviado', 'entregado', 'cancelado'
+     * - total: Total del pedido en moneda (obligatorio, decimal)
+     * - direccion_envio: Dirección de envío del pedido (obligatorio, TEXT)
+     * - metodo_pago: Método de pago utilizado (opcional, máximo 50 caracteres)
+     * - id_transaccion_pago: ID de la transacción de pago (opcional)
+     * - huella_carbono_total_kg: Huella de carbono total del pedido en kg CO₂ (opcional, decimal)
+     * - estado_pago: Estado del pago del pedido (opcional, máximo 20 caracteres, default "pendiente")
+     *   Valores posibles: 'pendiente', 'procesando', 'completado', 'fallido', 'reembolsado'
+     * - co2_ahorrado: CO₂ ahorrado en este pedido vs productos convencionales (opcional, decimal)
+     * - agua_ahorrada: Agua ahorrada en este pedido vs productos convencionales (opcional)
+     * - eco_puntos_ganados: Eco-puntos ganados por este pedido (opcional)
+     * 
+     * Relaciones:
+     * - @ManyToOne: Relación con Usuario (usuario_id)
+     * - Relación inversa con PedidoItem (cada pedido tiene múltiples items)
+     * 
+     * Notas importantes:
+     * - La relación con Usuario es Many-to-One, lo que significa que cada pedido
+     *   pertenece a un único usuario y cada usuario puede tener múltiples pedidos.
+     * - La fecha de pedido se genera automáticamente al crear el pedido.
+     * - El total del pedido se calcula generalmente a partir de los PedidoItems asociados.
+     * - Se usa @JsonIgnore en la relación con Usuario para evitar referencias circulares
+     *   durante la serialización JSON (el DTO manejará la exposición del usuarioId).
+     */
 @Entity
 @Table(name = "Pedidos")
 @Data // Genera automáticamente getters, setters, toString, equals y hashCode (Lombok)
@@ -166,4 +171,50 @@ public class Pedido {
      */
     @Column(name = "huella_carbono_total_kg", precision = 10, scale = 2)
     private BigDecimal huellaCarbonoTotalKg;
+
+    /**
+     * Estado del pago del pedido.
+     * 
+     * Indica el estado actual del proceso de pago.
+     * Valores posibles:
+     * - "pendiente": El pago está pendiente
+     * - "procesando": El pago está siendo procesado
+     * - "completado": El pago fue completado exitosamente
+     * - "fallido": El pago falló
+     * - "reembolsado": El pago fue reembolsado
+     * 
+     * @Column(length = 20): Longitud máxima de 20 caracteres
+     */
+    @Column(name = "estado_pago", length = 20)
+    @Builder.Default
+    private String estadoPago = "pendiente";
+
+    /**
+     * CO₂ ahorrado en este pedido comparado con productos convencionales (en kg).
+     * 
+     * Representa la diferencia de emisiones entre los productos sostenibles
+     * de este pedido y productos convencionales equivalentes.
+     * 
+     * @Column(precision = 10, scale = 2): Permite valores decimales con 2 decimales
+     */
+    @Column(name = "co2_ahorrado", precision = 10, scale = 2)
+    private BigDecimal co2Ahorrado;
+
+    /**
+     * Agua ahorrada en este pedido comparado con productos convencionales (en litros).
+     * 
+     * Representa la diferencia de consumo de agua entre los productos sostenibles
+     * de este pedido y productos convencionales equivalentes.
+     */
+    @Column(name = "agua_ahorrada")
+    private Integer aguaAhorrada;
+
+    /**
+     * Eco-puntos ganados por este pedido.
+     * 
+     * Representa la cantidad de eco-puntos que el usuario ganó al realizar este pedido.
+     * Se calcula automáticamente cuando el pedido se confirma o entrega.
+     */
+    @Column(name = "eco_puntos_ganados")
+    private Integer ecoPuntosGanados;
 }

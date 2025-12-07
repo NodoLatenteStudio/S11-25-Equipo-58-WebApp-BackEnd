@@ -1,8 +1,8 @@
 package com.ecoshop.mapper;
 
 import com.ecoshop.domain.Certificacion;
-import com.ecoshop.dto.CertificacionRequestDTO;
-import com.ecoshop.dto.CertificacionResponseDTO;
+import com.ecoshop.dto.Certificacion.CertificacionRequestDTO;
+import com.ecoshop.dto.Certificacion.CertificacionResponseDTO;
 import org.springframework.stereotype.Component;
 
 /**

@@ -98,6 +98,38 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Maneja excepciones cuando un usuario intenta acceder a un recurso sin permisos.
+     * 
+     * Esta excepción se lanza cuando se viola una regla de autorización:
+     * - Usuario intenta acceder a datos de otro usuario
+     * - Marca intenta editar productos de otra marca
+     * - Usuario sin rol adecuado intenta realizar una operación
+     * 
+     * Ejemplo de uso:
+     * - PUT /api/v1/usuarios/2 (usuario autenticado es el ID 1)
+     * - DELETE /api/v1/productos/5 (producto pertenece a otra marca)
+     * 
+     * Respuesta HTTP:
+     * - Código: 403 (Forbidden)
+     * - Body: { "timestamp": "...", "status": 403, "error": "Forbidden", "message": "..." }
+     * 
+     * @param ex Excepción ForbiddenException
+     * @return ResponseEntity con el error y código HTTP 403
+     */
+    @ExceptionHandler(ForbiddenException.class) // Maneja excepciones de autorización
+    public ResponseEntity<ErrorResponse> handleForbiddenException(ForbiddenException ex) {
+        // Construye la respuesta de error con la información de la excepción
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now()) // Hora actual del error
+                .status(HttpStatus.FORBIDDEN.value()) // Código HTTP 403
+                .error("Forbidden") // Tipo de error
+                .message(ex.getMessage()) // Mensaje de la excepción
+                .build();
+        // Retorna la respuesta con código HTTP 403
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    /**
      * Maneja excepciones cuando falla la validación de datos.
      * 
      * Esta excepción se lanza cuando los datos enviados en una petición no cumplen

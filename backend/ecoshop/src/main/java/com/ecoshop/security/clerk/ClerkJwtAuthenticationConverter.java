@@ -1,7 +1,7 @@
 package com.ecoshop.security.clerk;
 
 import com.ecoshop.domain.Usuario;
-import com.ecoshop.repository.UsuarioRepository;
+import com.ecoshop.repository.usuario.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;

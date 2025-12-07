@@ -9,41 +9,53 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Entidad JPA que representa un producto en la base de datos.
- * 
- * Esta clase mapea la tabla "productos" en la base de datos PostgreSQL.
- * Cada instancia de esta clase representa una fila en la tabla.
- * 
- * Estructura de la tabla según el esquema:
- * - producto_id: Identificador único (clave primaria, auto-generado)
- * - marca_id: Clave foránea a la tabla Marcas (obligatorio)
- * - nombre: Nombre del producto (obligatorio, máximo 200 caracteres)
- * - descripcion: Descripción del producto (opcional, TEXT)
- * - precio: Precio del producto (obligatorio, decimal)
- * - stock: Stock disponible del producto (obligatorio, default 0)
- * - sku: Código SKU único del producto (opcional, único, máximo 100 caracteres)
- * - materiales: Materiales utilizados en la fabricación (opcional, TEXT)
- * - origen: Origen del producto (opcional, máximo 100 caracteres)
- * - huella_carbono_total: Huella de carbono total en kg CO₂ (opcional, decimal)
- * - porcentaje_reciclable: Porcentaje de material reciclable (opcional, 0-100)
- * - eco_badge: Eco badge o certificación ecológica (opcional, máximo 15 caracteres)
- * - fecha_creacion: Fecha de creación del producto (obligatorio, no actualizable)
- * - activo: Indica si el producto está activo (obligatorio, default true)
- * - imagen_url: URL de la imagen del producto (opcional)
- * 
- * Relaciones:
- * - @ManyToOne: Relación con Marca (marca_id)
- * - @ManyToMany: Relación many-to-many con Certificacion a través de producto_certificaciones
- */
+    /**
+     * Entidad JPA que representa un producto en la base de datos.
+     * 
+     * Esta clase mapea la tabla "productos" en la base de datos PostgreSQL.
+     * Cada instancia de esta clase representa una fila en la tabla.
+     * 
+     * Estructura de la tabla según el esquema:
+     * - producto_id: Identificador único (clave primaria, auto-generado)
+     * - marca_id: Clave foránea a la tabla Marcas (obligatorio)
+     * - categoria_id: Clave foránea a la tabla Categorias (opcional)
+     * - nombre: Nombre del producto (obligatorio, máximo 200 caracteres)
+     * - descripcion: Descripción del producto (opcional, TEXT)
+     * - precio: Precio del producto (obligatorio, decimal)
+     * - stock: Stock disponible del producto (obligatorio, default 0)
+     * - sku: Código SKU único del producto (opcional, único, máximo 100 caracteres)
+     * - materiales: Materiales utilizados en la fabricación (opcional, TEXT)
+     * - origen: Origen del producto (opcional, máximo 100 caracteres)
+     * - origen_pais: País de origen del producto (opcional, máximo 100 caracteres)
+     * - huella_carbono_total: Huella de carbono total en kg CO₂ (opcional, decimal)
+     * - porcentaje_reciclable: Porcentaje de material reciclable (opcional, 0-100)
+     * - eco_badge: Eco badge o certificación ecológica (opcional, máximo 15 caracteres)
+     * - consumo_agua: Consumo de agua en litros durante la producción (opcional)
+     * - distancia_transporte: Distancia de transporte en kilómetros (opcional)
+     * - co2_ahorrado_vs_convencional: CO₂ ahorrado comparado con producto convencional (opcional, decimal)
+     * - emisiones_fabricacion: Emisiones de CO₂ por fabricación (opcional, decimal)
+     * - emisiones_empaque: Emisiones de CO₂ por empaque (opcional, decimal)
+     * - emisiones_transporte: Emisiones de CO₂ por transporte (opcional, decimal)
+     * - emisiones_entrega: Emisiones de CO₂ por entrega (última milla) (opcional, decimal)
+     * - logistica_optimizada: Indica si la logística está optimizada (opcional, default false)
+     * - ultima_milla_carbono_neutral: Indica si la entrega es carbono neutral (opcional, default false)
+     * - fecha_creacion: Fecha de creación del producto (obligatorio, no actualizable)
+     * - activo: Indica si el producto está activo (obligatorio, default true)
+     * - imagen_url: URL de la imagen del producto (opcional)
+     * 
+     * Relaciones:
+     * - @ManyToOne: Relación con Marca (marca_id)
+     * - @ManyToOne: Relación con Categoria (categoria_id) - opcional
+     * - @ManyToMany: Relación many-to-many con Certificacion a través de producto_certificaciones
+     */
 @Entity
 @Table(name = "productos")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"marca", "certificaciones"})
-@ToString(exclude = {"marca", "certificaciones"})
+@EqualsAndHashCode(exclude = {"marca", "categoria", "certificaciones"})
+@ToString(exclude = {"marca", "categoria", "certificaciones"})
 public class Producto {
 
     /**
@@ -67,6 +79,18 @@ public class Producto {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "marca_id", nullable = false)
     private Marca marca;
+
+    /**
+     * Relación Many-to-One con Categoria.
+     * 
+     * Cada producto pertenece a una categoría.
+     * La relación se almacena mediante la columna categoria_id en la tabla productos.
+     * 
+     * Campo opcional: un producto puede no tener categoría asignada.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
 
     /**
      * Nombre del producto.
@@ -129,6 +153,17 @@ public class Producto {
     private String origen;
 
     /**
+     * País de origen del producto.
+     * 
+     * Indica específicamente el país de fabricación/origen.
+     * Ejemplos: "Argentina", "Chile", "Brasil", "Colombia"
+     * 
+     * Nota: Este campo es más específico que "origen" que puede incluir regiones.
+     */
+    @Column(name = "origen_pais", length = 100)
+    private String origenPais;
+
+    /**
      * Huella de carbono total del producto en kilogramos de CO₂.
      * 
      * Representa la cantidad total de emisiones de CO₂ asociadas al producto.
@@ -155,6 +190,90 @@ public class Producto {
      */
     @Column(name = "eco_badge", length = 15)
     private String ecoBadge;
+
+    /**
+     * Consumo de agua en litros durante la producción del producto.
+     * 
+     * Representa la cantidad de agua consumida en el proceso de fabricación.
+     * Ejemplos: 50, 100, 250 litros
+     */
+    @Column(name = "consumo_agua")
+    private Integer consumoAgua;
+
+    /**
+     * Distancia de transporte en kilómetros desde el origen.
+     * 
+     * Representa la distancia estimada desde el lugar de origen/fabricación
+     * hasta el punto de distribución o venta.
+     * Ejemplos: 50, 1000, 5000 km
+     */
+    @Column(name = "distancia_transporte")
+    private Integer distanciaTransporte;
+
+    /**
+     * CO₂ ahorrado en kilogramos comparado con un producto convencional equivalente.
+     * 
+     * Representa la diferencia de emisiones entre este producto sostenible
+     * y un producto convencional similar.
+     */
+    @Column(name = "co2_ahorrado_vs_convencional", precision = 10, scale = 2)
+    private BigDecimal co2AhorradoVsConvencional;
+
+    /**
+     * Emisiones de CO₂ por fabricación del producto en kilogramos.
+     * 
+     * Representa las emisiones generadas durante el proceso de fabricación.
+     */
+    @Column(name = "emisiones_fabricacion", precision = 10, scale = 2)
+    private BigDecimal emisionesFabricacion;
+
+    /**
+     * Emisiones de CO₂ por empaque del producto en kilogramos.
+     * 
+     * Representa las emisiones generadas por el empaque del producto.
+     */
+    @Column(name = "emisiones_empaque", precision = 10, scale = 2)
+    private BigDecimal emisionesEmpaque;
+
+    /**
+     * Emisiones de CO₂ por transporte del producto en kilogramos.
+     * 
+     * Representa las emisiones generadas durante el transporte desde el origen.
+     */
+    @Column(name = "emisiones_transporte", precision = 10, scale = 2)
+    private BigDecimal emisionesTransporte;
+
+    /**
+     * Emisiones de CO₂ por entrega (última milla) del producto en kilogramos.
+     * 
+     * Representa las emisiones generadas durante la entrega final al cliente.
+     */
+    @Column(name = "emisiones_entrega", precision = 10, scale = 2)
+    private BigDecimal emisionesEntrega;
+
+    /**
+     * Indica si la logística de transporte está optimizada.
+     * 
+     * true: La logística está optimizada (rutas eficientes, carga consolidada, etc.)
+     * false: Logística estándar
+     * 
+     * Útil para calcular emisiones de transporte más precisas.
+     */
+    @Column(name = "logistica_optimizada")
+    @Builder.Default
+    private Boolean logisticaOptimizada = false;
+
+    /**
+     * Indica si la última milla (entrega final) es carbono neutral.
+     * 
+     * true: La entrega final es carbono neutral (compensación de emisiones, vehículos eléctricos, etc.)
+     * false: Entrega estándar
+     * 
+     * Útil para calcular emisiones de entrega más precisas.
+     */
+    @Column(name = "ultima_milla_carbono_neutral")
+    @Builder.Default
+    private Boolean ultimaMillaCarbonoNeutral = false;
 
     /**
      * URL de la imagen del producto.

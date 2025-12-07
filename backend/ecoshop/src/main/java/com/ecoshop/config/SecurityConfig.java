@@ -1,10 +1,11 @@
 package com.ecoshop.config;
 
-import com.ecoshop.repository.UsuarioRepository;
+import com.ecoshop.repository.usuario.UsuarioRepository;
 import com.ecoshop.security.clerk.ClerkJwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -126,6 +127,8 @@ public class SecurityConfig {
                           "/api/v1/certificaciones/**", // Lectura pública de certificaciones
                           "/api/v1/productos/**" // Lectura pública de productos
                           ).permitAll()
+                        // GET /api/v1/usuarios - Listado público (SOLO desarrollo - remover en producción)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/usuarios").permitAll()
                         // Endpoints que requieren autenticación
                         .requestMatchers(
                           "/api/v1/usuarios/**", // Gestión de usuarios (requiere autenticación)
