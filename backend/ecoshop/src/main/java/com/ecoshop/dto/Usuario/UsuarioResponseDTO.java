@@ -27,8 +27,7 @@ import java.time.LocalDateTime;
  * - direccionDefault: Dirección por defecto del usuario
  * - rol: Rol del usuario en el sistema
  * - fechaRegistro: Fecha de registro del usuario
- * 
- * Nota: El password_hash nunca se incluye en este DTO por seguridad.
+ * - isAdmin: Indica si el usuario es administrador
  */
 @Data // Genera automáticamente getters, setters, toString, equals y hashCode (Lombok)
 @Builder // Permite construir objetos usando el patrón Builder (Lombok)
