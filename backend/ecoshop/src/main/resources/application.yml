@@ -4,17 +4,26 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   datasource:
-    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://dpg-d4n13dq4d50c7391kvvg-a.oregon-postgres.render.com:5432/ecoshop_db}}  # Puerto 5433 (mapeo Docker: 5433:5432)
+    # Prioridad: SPRING_DATASOURCE_URL > DB_URL > valor por defecto
+    # Si el servicio y la DB están conectados en Render, usa la Internal URL (sin dominio completo)
+    # Si NO están conectados, usa la External URL (con dominio completo)
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://dpg-d4n13dq4d50c7391kvvg-a:5432/ecoshop_db}}  # Internal URL (servicios conectados)
     username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:ecoshop_db_user}}
     password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:JFGjiBQrO7T9vYhD5xqE0L93UshwBGoz}}
     driver-class-name: org.postgresql.Driver
+    # Configuración del pool de conexiones HikariCP
+    hikari:
+      connection-timeout: 30000  # 30 segundos
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 600000  # 10 minutos
+      max-lifetime: 1800000  # 30 minutos
   jpa:
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:update}
     show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect  # Dialecto explícito para evitar errores en Render
         format_sql: true
     open-in-view: false
   # Configuración de Spring Security OAuth2 Resource Server (JWT)
@@ -37,6 +46,7 @@ logging:
     org.springframework.security: ${SECURITY_LOG_LEVEL:WARN}
     org.springframework.boot.autoconfigure.jdbc: DEBUG  # Para debug de conexión DB
     com.zaxxer.hikari: DEBUG  # Para debug del pool de conexiones
+    org.postgresql: DEBUG  # Para debug del driver de PostgreSQL
 
 # Configuración de Clerk
 # IMPORTANTE: Configura estas propiedades como variables de entorno en producción
