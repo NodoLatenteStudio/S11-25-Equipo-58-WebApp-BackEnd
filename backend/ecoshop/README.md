@@ -2,11 +2,72 @@
 
 E-commerce sostenible con métricas de impacto ambiental - Backend API
 
-## 📋 Descripción
+## Descripción
 
 EcoShop es una plataforma de comercio electrónico enfocada en productos sostenibles que integra métricas de impacto ambiental para cada producto y transacción. El backend proporciona una API REST completa con autenticación mediante Clerk y gestión de productos, marcas, certificaciones, usuarios y pedidos.
 
-## 🛠️ Tecnologías
+## Estado del Proyecto
+
+✅ **Backend completamente funcional y desplegado en producción**
+
+- **URL de Producción:** `https://ecoshop-backend-mm8u.onrender.com`
+- **Base de Datos:** PostgreSQL en Render (Oregon, US West)
+- **Estado:** Live y funcionando correctamente
+- **Todos los endpoints probados y funcionando**
+
+## Despliegue en Producción
+
+### Render (Producción)
+
+El backend está desplegado en **Render** con las siguientes características:
+
+- **Servicio Web:** `ecoshop-backend` (Oregon, US West)
+- **Base de Datos:** PostgreSQL `ecoshop_db` (Oregon, US West)
+- **URL Base:** `https://ecoshop-backend-mm8u.onrender.com`
+- **Health Check:** `https://ecoshop-backend-mm8u.onrender.com/api/v1/health`
+
+### Variables de Entorno en Render
+
+Las siguientes variables de entorno están configuradas en Render:
+
+```env
+# Base de Datos (Internal URL - misma región)
+SPRING_DATASOURCE_URL=jdbc:postgresql://dpg-d4nl3dq4d50c739lkvvg-a:543XXXXX
+SPRING_DATASOURCE_USERNAME=ecoshopXXXX
+SPRING_DATASOURCE_PASSWORD=<password>
+
+# Spring Boot
+SPRING_PROFILES_ACTIVE=dev
+JPA_DDL_AUTO=update
+JPA_SHOW_SQL=false
+LOG_LEVEL=INFO
+SECURITY_LOG_LEVEL=WARN
+
+# Clerk (Autenticación)
+CLERK_ISSUER=https://concrete-tadpole-40.clerk.accounts.dev
+CLERK_SECRET_KEY=sk_test_xxxxx
+CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
+CLERK_WEBHOOK_SECRET=whsec_xxxxx
+CLERK_API_URL=https://api.clerk.com
+
+# Puerto (Render lo asigna automáticamente)
+PORT=8080
+```
+
+### Notas Importantes sobre el Deploy
+
+1. **Base de Datos Persistente:** La base de datos en Render es persistente e independiente del código. Los datos se mantienen aunque actualices el código.
+
+2. **Internal vs External URL:** Como el servicio web y la base de datos están en la misma región (Oregon), se usa la **Internal Database URL** (sin dominio completo, sin SSL).
+
+3. **Logs en Render:** Para ver los logs en tiempo real:
+   - Ve a tu servicio en Render → Pestaña "Logs"
+
+4. **Cold Start:** Render puede tardar 30-60 segundos en iniciar la aplicación después de un deploy.
+
+5. **Variables de Entorno:** Todas las claves secretas deben estar en variables de entorno en Render, nunca en el código.
+
+## Tecnologías
 
 - **Java 21**
 - **Spring Boot 3.5.7**
@@ -16,7 +77,7 @@ EcoShop es una plataforma de comercio electrónico enfocada en productos sosteni
 - **Maven 3.8+**
 - **Clerk** (Autenticación y gestión de usuarios)
 
-## 📦 Requisitos
+## Requisitos
 
 - Java 21
 - Maven 3.8+
@@ -24,9 +85,9 @@ EcoShop es una plataforma de comercio electrónico enfocada en productos sosteni
 - Docker (opcional, para PostgreSQL)
 - Cuenta de Clerk (para autenticación)
 
-## ⚙️ Configuración Inicial
+## Configuración Inicial
 
-### Opción 1: Usando Docker Compose (Recomendado)
+### Opción 1: Usando Docker Compose (Local)
 
 1. Iniciar PostgreSQL con Docker Compose:
 
@@ -41,25 +102,15 @@ Esto creará una instancia de PostgreSQL en el puerto **5433** con:
 
 **Nota:** El puerto está configurado en 5433 (no 5432) para evitar conflictos con instalaciones locales de PostgreSQL.
 
-### Opción 2: Instalación Local de PostgreSQL
-
-1. Instalar PostgreSQL localmente
-2. Crear la base de datos:
-
-```sql
-CREATE DATABASE ecoshop;
-```
-
 ### Variables de Entorno
 
 Copiar el archivo `.env.example` a `.env` y configurar las variables:
 
 ```bash
-# En Windows (PowerShell)
-Copy-Item .env.example .env
+Copy-Item .env.example .env (Aunque no se encuentra actualizado aun, consultar a Javiera para información completa)
 ```
 
-Editar el archivo `.env` con tus credenciales:
+Editar (en caso de necesitarse, de todas formas todas funcionan) el archivo `.env` con tus credenciales:
 
 ```env
 # Base de datos
@@ -96,11 +147,11 @@ Para cambiar el perfil, establecer la variable de entorno:
 SPRING_PROFILES_ACTIVE=dev
 ```
 
-## 🚀 Ejecutar la Aplicación
+## Ejecutar la Aplicación
 
-### Desarrollo
+### Desarrollo Local
 
-#### Opción 1: Desde el IDE (Recomendado)
+#### Opción 1: Desde el IDE (Recomendado para local)
 
 1. Abrir el proyecto en tu IDE (IntelliJ IDEA, Eclipse, VS Code, etc.)
 2. Asegurar que Java 21 esté configurado como SDK del proyecto
@@ -108,21 +159,21 @@ SPRING_PROFILES_ACTIVE=dev
 4. Ejecutar la clase `EcoShopApplication` como aplicación Java
 5. La aplicación estará disponible en: `http://localhost:8080`
 
-#### Opción 2: Desde la Terminal
+### Producción (Render)
 
-```bash
-mvn spring-boot:run
-```
+El backend está desplegado automáticamente en Render. Cada push a la rama `main` desplegará automáticamente la nueva versión.
 
-La aplicación estará disponible en: `http://localhost:8080`
+**URL de Producción:** `https://ecoshop-backend-mm8u.onrender.com`
 
-### Compilar
+**Verificar Estado:**
+- Health Check: `GET https://ecoshop-backend-mm8u.onrender.com/api/v1/health`
+- Debe responder: `200 OK` con mensaje `"EcoShop API OK"`
 
-```bash
-mvn clean install
-```
+**Ver Logs:**
+- Render Dashboard → Tu servicio → Pestaña "Logs"
+- Los logs se actualizan en tiempo real
 
-## 🔐 Autenticación
+## Autenticación
 
 ### Clerk Integrado
 
@@ -147,7 +198,7 @@ La aplicación utiliza **Clerk** para autenticación y gestión de usuarios. Cle
 - `CLERK_SECRET_KEY`: Secret key de Clerk (para webhooks, opcional)
 - `CLERK_WEBHOOK_SECRET`: Secret para verificar webhooks (opcional)
 
-## 📊 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 src/main/java/com/ecoshop/
@@ -275,7 +326,7 @@ src/main/java/com/ecoshop/
     └── usuario/
 ```
 
-## 🗄️ Base de Datos
+## Base de Datos
 
 ### Tablas Principales
 
@@ -296,9 +347,28 @@ src/main/java/com/ecoshop/
 
 ### Configuración
 
-- Las tablas se crean automáticamente mediante JPA con `ddl-auto: update`
-- En producción, usar `ddl-auto: validate` o migraciones con Flyway/Liquibase
-- PostgreSQL 14+ recomendado
+- **Desarrollo Local:** Las tablas se crean automáticamente mediante JPA con `ddl-auto: update`
+- **Producción (Render):** Se usa `ddl-auto: update` (las tablas se crean/actualizan automáticamente)
+- **PostgreSQL 14+** recomendado
+- **Base de Datos en Render:** Persistente e independiente del código
+
+### Conexión a la Base de Datos
+
+#### Desarrollo Local (Docker)
+```env
+DB_URL=jdbc:postgresql://localhost:54XXX
+DB_USERNAME=XXXXX
+DB_PASSWORD=XXXXXX
+```
+
+#### Producción (Render)
+```env
+SPRING_DATASOURCE_URL=jdbc:postgresql://dpg-d4nl3dq4d50c739lkvvg-a:543XXXXX
+SPRING_DATASOURCE_USERNAME=ecoshoXXXXXX
+SPRING_DATASOURCE_PASSWORD=<password>
+```
+
+**Nota:** En Render se usa la **Internal Database URL** porque el servicio web y la base de datos están en la misma región (Oregon).
 
 ### Relaciones
 
@@ -316,7 +386,7 @@ src/main/java/com/ecoshop/
 - **Recompensa ↔ Canje**: One-to-Many (una recompensa puede tener múltiples canjes)
 - **Producto ↔ StockHistorial**: One-to-Many (un producto tiene múltiples registros de historial)
 
-## 📡 Endpoints Disponibles
+## Endpoints Disponibles (Los que se encuentran con [x] es porque estan funcionando correctamente)
 
 ### Health Check
 
@@ -515,7 +585,12 @@ src/main/java/com/ecoshop/
 
 **✅ IMPORTANTE:** La verificación de firma del webhook está implementada usando HMAC SHA256.
 
-## 📝 Ejemplos de Uso
+## Ejemplos de Uso
+
+### URLs Base
+
+- **Desarrollo Local:** `http://localhost:8080`
+- **Producción (Render):** `https://ecoshop-backend-mm8u.onrender.com`
 
 ### Autenticación
 
@@ -529,6 +604,8 @@ Para obtener un token JWT:
 1. Usuario se autentica en el frontend con Clerk
 2. Frontend obtiene el token de la sesión de Clerk
 3. Frontend envía el token en cada request al backend
+
+**Nota Importante:** El token JWT debe ser válido y el usuario debe existir en la base de datos. Si el token es válido pero el usuario no existe en la BD, se recibirá un error `401 Unauthorized`.
 
 ### Crear Certificación
 
@@ -578,7 +655,9 @@ Authorization: Bearer <token_jwt>
 }
 ```
 
-**Nota sobre certificaciones:** En POST/PUT, envía un array de IDs de certificaciones (números enteros). En GET, las certificaciones se devuelven como nombres de sellos (strings) para facilitar el uso en el frontend.
+**Nota sobre certificaciones:** En POST/PUT, envía un array de IDs de certificaciones como strings (ej: `["1", "2"]`). En GET, las certificaciones se devuelven como nombres de sellos (strings) para facilitar el uso en el frontend.
+
+**Importante:** Antes de crear productos, asegúrate de que las marcas y certificaciones existan en la base de datos. Si intentas crear un producto con una marca o certificación que no existe, recibirás un error `500 Internal Server Error`.
 
 **Respuesta:**
 ```json
@@ -652,17 +731,18 @@ Authorization: Bearer <token_jwt>
 
 **Nota:** Solo los campos enviados se actualizan. Los campos no enviados mantienen su valor anterior (no se ponen en null).
 
-## 🔒 Seguridad
+## Seguridad
 
 ### Configuración Actual
 
 - **CSRF**: Deshabilitado (no necesario para APIs REST con JWT)
-- **CORS**: Habilitado para todos los orígenes (`*`) - **Cambiar en producción**
+- **CORS**: Habilitado para todos los orígenes (`*`)
 - **Sesiones**: Stateless (cada request es independiente)
 - **Autenticación**: JWT mediante Spring Security OAuth2 Resource Server
 - **Validación de Tokens**: Automática mediante JWKS de Clerk
 - **Autorización**: Validación granular de permisos (usuarios solo acceden a sus datos, marcas solo a sus productos, admins acceso completo)
 - **Verificación de Webhooks**: Implementada con HMAC SHA256 para Clerk y Stripe
+- **Variables de Entorno**: Todas las claves secretas están en variables de entorno, nunca en el código
 
 ### Endpoints Públicos
 
@@ -716,26 +796,30 @@ Todos los siguientes endpoints requieren un token JWT válido de Clerk:
 
 ### Importante para Producción
 
-1. **CORS**: Configurar dominios específicos en `SecurityConfig.java`:
+1. **CORS**: **Pendiente** - Configurar dominios específicos en `SecurityConfig.java`:
    ```java
-   configuration.setAllowedOrigins(Arrays.asList("https://tu-dominio.com"));
+   configuration.setAllowedOrigins(Arrays.asList("https://tu-dominio-frontend.com"));
    ```
 
 2. **Verificación de Webhooks**: ✅ Implementada con HMAC SHA256 para Clerk y Stripe
 
-3. **Variables de Entorno**: Todas las claves secretas deben estar en variables de entorno, nunca en código
+3. **Variables de Entorno**: ✅ Todas las claves secretas están en variables de entorno en Render, nunca en código
 
-4. **HTTPS**: Configurar HTTPS en producción (obligatorio para webhooks)
+4. **HTTPS**: ✅ Configurado automáticamente por Render (obligatorio para webhooks)
 
-5. **Rate Limiting**: Considerar implementar rate limiting para prevenir abuso
+5. **Rate Limiting**: **Pendiente** - Considerar implementar rate limiting para prevenir abuso
 
-6. **Validación de Input**: Todos los DTOs usan Bean Validation (`@Valid`)
+6. **Validación de Input**: ✅ Todos los DTOs usan Bean Validation (`@Valid`)
 
-7. **SQL Injection**: Prevenido mediante uso de JPA/Hibernate (prepared statements)
+7. **SQL Injection**: ✅ Prevenido mediante uso de JPA/Hibernate (prepared statements)
 
-8. **XSS**: Prevenido mediante serialización JSON segura
+8. **XSS**: ✅ Prevenido mediante serialización JSON segura
 
-## 🎯 Características Principales
+9. **Base de Datos**: ✅ PostgreSQL en Render con conexión segura (Internal URL)
+
+10. **Logs**: ✅ Disponibles en Render Dashboard → Logs (tiempo real)
+
+## Características Principales
 
 ### Módulo de Productos
 
@@ -825,6 +909,7 @@ Todos los siguientes endpoints requieren un token JWT válido de Clerk:
 - Actualización de cantidad de items
 - Vaciar carrito completo
 - Persistencia en base de datos (no se pierde al cerrar sesión)
+- Si el usuario no se encuentra logeado, Front guardará la información en LocalStorage
 
 ### Módulo de Checkout
 
@@ -888,7 +973,7 @@ Todos los siguientes endpoints requieren un token JWT válido de Clerk:
 - Verificación de estado de pago
 - Actualización automática de estado del pedido
 
-## 🔍 Validaciones
+## Validaciones
 
 ### ProductoRequestDTO
 
@@ -977,7 +1062,7 @@ Todos los siguientes endpoints requieren un token JWT válido de Clerk:
 - `tipoMovimiento`: Obligatorio (entrada, salida, ajuste)
 - `motivo`: Opcional
 
-## ⚠️ Manejo de Errores
+## Manejo de Errores
 
 El sistema incluye un `GlobalExceptionHandler` que maneja:
 
@@ -997,13 +1082,24 @@ Ejemplo de respuesta de error:
 }
 ```
 
-## 📌 Notas Importantes
+## Notas Importantes
 
 ### Autenticación con Clerk
 
 - El `usuarioId` se obtiene automáticamente del token JWT para los endpoints de **Marcas** y **Pedidos**, no es necesario incluirlo en el body
 - Si un token JWT es válido pero el usuario no existe en la BD local, se lanza una excepción 401
 - Los usuarios se sincronizan automáticamente mediante webhooks cuando se registran en Clerk
+- **En Producción:** La base de datos de Render está vacía inicialmente. Debes crear usuarios, marcas y certificaciones antes de crear productos
+
+### Base de Datos en Producción
+
+- **La base de datos en Render es persistente:** Los datos se mantienen aunque actualices el código
+- **Base de datos independiente:** La BD de Render es completamente independiente de tu BD local (Docker)
+- **Población inicial (En proceso de creación):** Al desplegar en Render, la base de datos estará vacía. Debes crear:
+  1. Primero: Categorías, Certificaciones
+  2. Segundo: Usuarios (o esperar webhooks de Clerk)
+  3. Tercero: Marcas (asociadas a usuarios)
+  4. Cuarto: Productos (asociados a marcas y certificaciones)
 
 ### Diferencias entre Endpoints
 
@@ -1024,13 +1120,18 @@ Ejemplo de respuesta de error:
 - Si envías `certificaciones: null` en PUT, se preservan las certificaciones existentes
 - Si envías `certificaciones: []`, se eliminan todas las certificaciones
 
-## 📚 Ejemplos de Endpoints
+## Ejemplos de Endpoints
 
 ### Health Check
 
 **GET /api/v1/health**
 ```http
 GET /api/v1/health
+```
+
+**Ejemplo en Producción:**
+```http
+GET https://ecoshop-backend-mm8u.onrender.com/api/v1/health
 ```
 
 **Respuesta:**
@@ -1142,9 +1243,11 @@ Authorization: Bearer <token_jwt>
   "origen": "Chile",
   "huellaCarbonoTotal": 0.8,
   "porcentajeReciclable": 100,
-  "certificaciones": [1, 2]
+  "certificaciones": ["1", "2"]
 }
 ```
+
+**Nota:** Las certificaciones se envían como array de strings (IDs), no números. Ejemplo: `["1", "2"]` no `[1, 2]`.
 
 ### Usuarios
 
@@ -1549,3 +1652,59 @@ Authorization: Bearer <token_jwt>
   }
 }
 ```
+
+## Testing y Herramientas
+
+### Postman Collection
+
+El proyecto ha sido testeado mediante la utilización de Postman para asegurar un funcionamiento correcto.
+
+### Verificar Configuración de Clerk
+
+Endpoint público para verificar que Clerk está configurado correctamente:
+
+```http
+GET https://ecoshop-backend-mm8u.onrender.com/api/v1/config/clerk
+```
+
+Este endpoint muestra qué variables de Clerk están configuradas (sin exponer valores completos por seguridad).
+
+### Verificar Estado del Servicio
+
+- **Render Dashboard:** Estado debe ser "Live" (verde)
+- **Health Check:** `GET https://ecoshop-backend-mm8u.onrender.com/api/v1/health`
+- **Logs:** Debe aparecer "Started EcoShopApplication" sin errores
+
+## Estado del Proyecto
+
+### ✅ Completado
+
+- ✅ Backend completamente funcional
+- ✅ Desplegado en producción (Render)
+- ✅ Base de datos configurada y funcionando
+- ✅ Autenticación con Clerk integrada
+- ✅ Todos los endpoints probados y funcionando
+- ✅ Documentación completa
+- ✅ Postman collection incluida
+
+### Pendiente (Opcional)
+
+- Configurar CORS para dominios específicos 
+- Implementar rate limiting 
+- Integración completa con pasarelas de pago (Stripe, PayPal, MercadoPago) - Endpoints creados pero requieren configuración adicional
+
+## Soporte
+
+Para problemas o preguntas:
+1. Revisar esta documentación
+2. Verificar logs en Render
+3. Probar endpoints con Postman
+4. Verificar configuración de variables de entorno
+5. Contactar a Javiera Pulgar
+
+---
+
+**Última actualización:** 08/12/2025  
+**Versión:** 1.0.0  
+**Estado:** ✅ Producción  
+**URL de Producción:** `https://ecoshop-backend-mm8u.onrender.com`
