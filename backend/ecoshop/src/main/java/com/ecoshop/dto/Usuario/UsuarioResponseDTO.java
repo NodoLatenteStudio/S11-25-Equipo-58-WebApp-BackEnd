@@ -84,6 +84,18 @@ public class UsuarioResponseDTO {
     private String rol;
 
     /**
+     * Indica si el usuario es administrador.
+     * 
+     * Este campo es calculado automáticamente basándose en el rol.
+     * Retorna true si el rol es "admin" (case-insensitive), false en caso contrario.
+     * 
+     * @return true si el usuario es administrador, false en caso contrario
+     */
+    public Boolean getIsAdmin() {
+        return "admin".equalsIgnoreCase(this.rol);
+    }
+
+    /**
      * Fecha de registro del usuario.
      * 
      * Fecha en que el usuario se registró en el sistema.
