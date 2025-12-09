@@ -1,6 +1,5 @@
 package com.ecoshop.dto.Certificacion;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,7 +36,8 @@ public class CertificacionRequestDTO {
     /**
      * Nombre del sello de certificación.
      * 
-     * @NotBlank: El campo no puede estar vacío ni ser null
+     * Campo opcional en actualizaciones (PUT), pero obligatorio en creaciones (POST).
+     * La validación se realiza manualmente en el servicio para permitir actualizaciones parciales y facilitar el uso en el frontend.
      * 
      * Este es el nombre que se mostrará a los usuarios en el frontend.
      * 
@@ -47,12 +47,8 @@ public class CertificacionRequestDTO {
      * - "Organic"
      * - "Comercio Justo"
      * 
-     * Ejemplos inválidos:
-     * - "" (vacío)
-     * - "   " (solo espacios en blanco)
-     * - null
+     * Nota: En POST es obligatorio, en PUT es opcional para permitir actualizaciones parciales.
      */
-    @NotBlank(message = "El nombre del sello es obligatorio")
     private String nombreSello;
 
     /**
@@ -79,5 +75,15 @@ public class CertificacionRequestDTO {
      * - "Organización Internacional de Certificación"
      */
     private String entidadEmisora;
+
+    /**
+     * URL de la imagen del sello de certificación.
+     * 
+     * Campo opcional que almacena la dirección de la imagen del sello de certificación.
+     * Útil para mostrar el sello en el frontend.
+     * 
+     * Ejemplos: "https://i.ibb.co/xxxxx/carbon-neutral.png", "https://cdn.example.com/certificaciones/b-corp.png"
+     */
+    private String imagenUrl;
 }
 

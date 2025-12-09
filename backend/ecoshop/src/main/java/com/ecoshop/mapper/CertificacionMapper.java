@@ -39,23 +39,31 @@ public class CertificacionMapper {
      * Proceso:
      * 1. Crea una nueva instancia de Certificacion
      * 2. Copia los campos básicos del DTO a la entidad
-     * 3. Retorna la entidad (sin ID, sin productos)
+     * 3. Normaliza el nombreSello (trim) para asegurar consistencia en la BD
+     * 4. Retorna la entidad (sin ID, sin productos)
      * 
      * @param dto CertificacionRequestDTO con los datos de la certificación
      * @return Certificacion entidad sin ID ni productos asignados
      * 
      * Nota: El ID se asignará automáticamente por la BD cuando se guarde.
      * Los productos se asignan en el servicio cuando se asocian a productos.
+     * El nombreSello se normaliza (trim) para mantener consistencia con las validaciones del servicio.
      */
     public Certificacion toEntity(CertificacionRequestDTO dto) {
         if (dto == null) {
             return null;
         }
 
+        // Normalizar nombreSello (trim) para asegurar consistencia en la persistencia
+        String nombreSelloNormalizado = dto.getNombreSello() != null 
+                ? dto.getNombreSello().trim() 
+                : null;
+
         return Certificacion.builder()
-                .nombreSello(dto.getNombreSello())
+                .nombreSello(nombreSelloNormalizado)
                 .descripcion(dto.getDescripcion())
                 .entidadEmisora(dto.getEntidadEmisora())
+                .imagenUrl(dto.getImagenUrl())
                 .build();
     }
 
@@ -86,6 +94,7 @@ public class CertificacionMapper {
                 .nombreSello(certificacion.getNombreSello())
                 .descripcion(certificacion.getDescripcion())
                 .entidadEmisora(certificacion.getEntidadEmisora())
+                .imagenUrl(certificacion.getImagenUrl())
                 .build();
     }
 
@@ -98,14 +107,16 @@ public class CertificacionMapper {
      * 
      * Proceso:
      * 1. Actualiza los campos básicos de la certificación desde el DTO
-     * 2. NO actualiza el ID (se mantiene el original)
-     * 3. NO actualiza las relaciones (productos) - se manejan en el servicio
+     * 2. Normaliza el nombreSello (trim) si se proporciona, para asegurar consistencia
+     * 3. NO actualiza el ID (se mantiene el original)
+     * 4. NO actualiza las relaciones (productos) - se manejan en el servicio
      * 
      * @param certificacion Entidad Certificacion existente a actualizar
      * @param dto CertificacionRequestDTO con los nuevos datos
      * 
      * Nota: Este método solo actualiza los campos básicos. Las relaciones
      * (productos) deben actualizarse en el servicio si es necesario.
+     * El nombreSello se normaliza (trim) para mantener consistencia con las validaciones del servicio.
      */
     public void updateEntityFromDto(Certificacion certificacion, CertificacionRequestDTO dto) {
         if (certificacion == null || dto == null) {
@@ -113,9 +124,19 @@ public class CertificacionMapper {
         }
 
         // Actualizar campos básicos (preservando ID y relaciones)
-        certificacion.setNombreSello(dto.getNombreSello());
-        certificacion.setDescripcion(dto.getDescripcion());
-        certificacion.setEntidadEmisora(dto.getEntidadEmisora());
+        if (dto.getNombreSello() != null) {
+            // Normalizar nombreSello (trim) para asegurar consistencia en la persistencia
+            certificacion.setNombreSello(dto.getNombreSello().trim());
+        }
+        if (dto.getDescripcion() != null) {
+            certificacion.setDescripcion(dto.getDescripcion());
+        }
+        if (dto.getEntidadEmisora() != null) {
+            certificacion.setEntidadEmisora(dto.getEntidadEmisora());
+        }
+        if (dto.getImagenUrl() != null) {
+            certificacion.setImagenUrl(dto.getImagenUrl());
+        }
     }
 }
 

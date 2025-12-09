@@ -135,31 +135,37 @@ public class CertificacionController {
     /**
      * Actualiza una certificación existente en la base de datos.
      * 
-     * @param id Identificador único de la certificación a actualizar
-     * @param dto Nuevos datos de la certificación (viene en el cuerpo de la petición)
+     * Este endpoint permite actualizaciones parciales. Solo se actualizan los campos
+     * que se envíen en el body. Los campos no incluidos se mantienen sin cambios.
+     * 
+     * @param id Identificador único de la certificación a actualizar (en la URL)
+     * @param dto Datos a actualizar (todos los campos son opcionales)
      * @return ResponseEntity con la certificación actualizada y código HTTP 200 (OK)
      * @throws com.ecoshop.exception.ResourceNotFoundException si la certificación no existe
-     * @throws org.springframework.web.bind.MethodArgumentNotValidException si los datos no son válidos
      * @throws com.ecoshop.exception.BadRequestException si el nuevo nombre de sello ya existe en otra certificación
      * 
-     * Validaciones aplicadas (definidas en CertificacionRequestDTO):
-     * - Las mismas validaciones que en createCertificacion
+     * Ejemplo de uso - Actualización parcial (solo imagenUrl):
+     * PUT http://localhost:8080/api/v1/certificaciones/2
+     * Body: {
+     *   "imagenUrl": "https://i.ibb.co/xxxxx/carbon-neutral.png"
+     * }
      * 
-     * Ejemplo de uso:
+     * Ejemplo de uso - Actualización completa:
      * PUT http://localhost:8080/api/v1/certificaciones/1
      * Body: {
      *   "nombreSello": "Fair Trade Actualizado",
      *   "descripcion": "Nueva descripción",
-     *   "entidadEmisora": "Fair Trade International"
+     *   "entidadEmisora": "Fair Trade International",
+     *   "imagenUrl": "https://i.ibb.co/xxxxx/fair-trade.png"
      * }
      */
     @PutMapping("/{id}")
     public ResponseEntity<CertificacionResponseDTO> updateCertificacion(
             @PathVariable Integer id, 
-            @Valid @RequestBody CertificacionRequestDTO dto) {
+            @RequestBody CertificacionRequestDTO dto) {
         // @PathVariable extrae el ID desde la URL
-        // @Valid activa las validaciones definidas en CertificacionRequestDTO
         // @RequestBody convierte el JSON del cuerpo de la petición a un objeto CertificacionRequestDTO
+        // Nota: No usamos @Valid para permitir actualizaciones parciales (todos los campos opcionales, esto con la finalidad de que sea más sencilla la actualización en el frontend)
         CertificacionResponseDTO updatedCertificacion = certificacionService.updateCertificacion(id, dto);
         return ResponseEntity.ok(updatedCertificacion);
     }

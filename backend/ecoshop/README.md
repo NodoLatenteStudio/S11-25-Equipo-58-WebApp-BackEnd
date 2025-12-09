@@ -431,7 +431,7 @@ SPRING_DATASOURCE_PASSWORD=<password>
 
 - [x] `GET /api/v1/usuarios` - Obtener todos los usuarios (requiere autenticación)
 - [x] `GET /api/v1/usuarios/{id}` - Obtener usuario por ID (requiere autenticación)
-- [x] `GET /api/v1/usuarios/me` - Obtener usuario autenticado actual (requiere autenticación)
+- [x] `GET /api/v1/usuarios/me` - Obtener usuario autenticado actual (requiere autenticación) - Devuelve `isAdmin` calculado automáticamente
 - [x] `GET /api/v1/usuarios/me/pedidos` - Obtener pedidos del usuario autenticado (requiere autenticación)
 - [x] `GET /api/v1/usuarios/{id}/dashboard-impacto` - Obtener dashboard de impacto ambiental (requiere autenticación)
 - [x] `GET /api/v1/usuarios/{id}/metricas-ambientales` - Obtener métricas ambientales agregadas (requiere autenticación)
@@ -618,7 +618,8 @@ Authorization: Bearer <token_jwt>
 {
   "nombreSello": "Fair Trade",
   "descripcion": "Certificación que garantiza condiciones de comercio justo",
-  "entidadEmisora": "Fair Trade International"
+  "entidadEmisora": "Fair Trade International",
+  "imagenUrl": "https://i.ibb.co/xxxxx/fair-trade.png"
 }
 ```
 
@@ -628,7 +629,17 @@ Authorization: Bearer <token_jwt>
   "certificacionId": 1,
   "nombreSello": "Fair Trade",
   "descripcion": "Certificación que garantiza condiciones de comercio justo",
-  "entidadEmisora": "Fair Trade International"
+  "entidadEmisora": "Fair Trade International",
+  "imagenUrl": "https://i.ibb.co/xxxxx/fair-trade.png"
+}
+```
+
+**Nota sobre actualizaciones (PUT):** El endpoint `PUT /api/v1/certificaciones/{id}` permite actualizaciones parciales. Solo se actualizan los campos que se envíen en el body. Ejemplo de actualización parcial:
+
+```json
+PUT /api/v1/certificaciones/2
+{
+  "imagenUrl": "https://i.ibb.co/xxxxx/carbon-neutral.png"
 }
 ```
 
@@ -846,6 +857,8 @@ Todos los siguientes endpoints requieren un token JWT válido de Clerk:
 - Búsqueda por nombre de sello (case-insensitive)
 - Relación many-to-many con productos
 - Validación de unicidad
+- Soporte para imágenes de sellos (`imagenUrl`)
+- Actualizaciones parciales en PUT (todos los campos opcionales)
 
 ### Módulo de Categorías
 
@@ -865,6 +878,7 @@ Todos los siguientes endpoints requieren un token JWT válido de Clerk:
 - Sistema de eco-puntos con niveles y metas
 - Objetivos de sostenibilidad personalizables
 - Endpoints `/me` para usuario autenticado
+- Campo `isAdmin` calculado automáticamente en respuestas (basado en rol)
 - Validación de relaciones antes de eliminar (marcas, pedidos)
 - Autorización granular (usuarios solo acceden a sus datos)
 
@@ -991,9 +1005,10 @@ Todos los siguientes endpoints requieren un token JWT válido de Clerk:
 
 ### CertificacionRequestDTO
 
-- `nombreSello`: Obligatorio, único
+- `nombreSello`: Obligatorio en POST, opcional en PUT (para actualizaciones parciales)
 - `descripcion`: Opcional
 - `entidadEmisora`: Opcional
+- `imagenUrl`: Opcional - URL de la imagen del sello de certificación
 
 ### CategoriaRequestDTO
 
@@ -1257,6 +1272,22 @@ Authorization: Bearer <token_jwt>
 GET /api/v1/usuarios/me
 Authorization: Bearer <token_jwt>
 ```
+
+**Respuesta:**
+```json
+{
+  "usuarioId": 1,
+  "clerkId": "user_xxxxx",
+  "email": "usuario@example.com",
+  "nombre": "Juan Pérez",
+  "direccionDefault": null,
+  "rol": "admin",
+  "fechaRegistro": "2025-01-15T10:30:00",
+  "isAdmin": true
+}
+```
+
+**Nota:** El campo `isAdmin` es calculado automáticamente basándose en el `rol` del usuario. Retorna `true` si el rol es "admin" (case-insensitive), `false` en caso contrario. En caso de que se haga cree el usuario como cliente de forma automatica, en el PUT se puede cambiar esto a admin para cambiarlo.
 
 **GET /api/v1/usuarios/{id}/dashboard-impacto**
 ```http

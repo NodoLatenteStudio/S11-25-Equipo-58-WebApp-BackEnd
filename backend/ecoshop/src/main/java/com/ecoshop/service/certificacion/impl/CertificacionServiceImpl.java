@@ -75,23 +75,27 @@ public class CertificacionServiceImpl implements CertificacionService {
     @Override
     @Transactional
     public CertificacionResponseDTO createCertificacion(CertificacionRequestDTO dto) {
-        // 1. Validar que el nombre del sello sea único (case-insensitive)
-        if (dto.getNombreSello() != null && !dto.getNombreSello().trim().isEmpty()) {
-            if (certificacionRepository.existsByNombreSelloIgnoreCase(dto.getNombreSello().trim())) {
-                throw new BadRequestException("Ya existe una certificación con el nombre de sello: " + dto.getNombreSello());
-            }
+        // 1. Validar que el nombre del sello sea obligatorio en creación
+        if (dto.getNombreSello() == null || dto.getNombreSello().trim().isEmpty()) {
+            throw new BadRequestException("El nombre del sello es obligatorio");
+        }
+        
+        // 2. Validar que el nombre del sello sea único (case-insensitive)
+        String nombreSello = dto.getNombreSello().trim();
+        if (certificacionRepository.existsByNombreSelloIgnoreCase(nombreSello)) {
+            throw new BadRequestException("Ya existe una certificación con el nombre de sello: " + nombreSello);
         }
 
-        // 2. Convertir DTO a entidad usando el mapper
+        // 3. Convertir DTO a entidad usando el mapper
         Certificacion certificacion = certificacionMapper.toEntity(dto);
 
-        // 3. Guardar en la BD (JPA asigna el ID automáticamente)
+        // 4. Guardar en la BD (JPA asigna el ID automáticamente)
         Certificacion savedCertificacion = certificacionRepository.save(certificacion);
         
-        // 4. Forzamos el flush para asegurar que los cambios se persistan
+        // 5. Forzamos el flush para asegurar que los cambios se persistan
         entityManager.flush();
 
-        // 5. Convertir entidad a DTO de respuesta usando el mapper
+        // 6. Convertir entidad a DTO de respuesta usando el mapper
         return certificacionMapper.toResponse(savedCertificacion);
     }
 
@@ -177,23 +181,30 @@ public class CertificacionServiceImpl implements CertificacionService {
     /**
      * Actualiza una certificación existente.
      * 
+     * Este método permite actualizaciones parciales. Solo se actualizan los campos
+     * que se proporcionen en el DTO. Los campos no incluidos se mantienen sin cambios.
+     * 
      * Proceso:
      * 1. Verifica que la certificación exista
-     * 2. Valida que el nombre del sello sea único (si se cambia)
-     * 3. Actualiza los campos usando el mapper
+     * 2. Valida que el nombre del sello sea único (solo si se proporciona y cambió)
+     * 3. Actualiza solo los campos proporcionados usando el mapper
      * 4. Guarda los cambios en la BD
      * 5. Convierte la entidad actualizada a DTO de respuesta usando el mapper
      * 6. Retorna el DTO actualizado
      * 
      * @param id ID de la certificación a actualizar
-     * @param dto Nuevos datos de la certificación
+     * @param dto Datos a actualizar (todos los campos son opcionales)
      * @return CertificacionResponseDTO actualizado
      * @throws ResourceNotFoundException si la certificación no existe
      * @throws BadRequestException si el nuevo nombre de sello ya existe en otra certificación
      * 
-     * Ejemplo de uso:
+     * Ejemplo de uso - Actualización parcial:
+     * PUT /api/v1/certificaciones/2
+     * Body: { "imagenUrl": "https://i.ibb.co/xxxxx/carbon-neutral.png" }
+     * 
+     * Ejemplo de uso - Actualización completa:
      * PUT /api/v1/certificaciones/1
-     * Body: { "nombreSello": "Fair Trade Actualizado", "descripcion": "...", "entidadEmisora": "..." }
+     * Body: { "nombreSello": "Fair Trade Actualizado", "descripcion": "...", "entidadEmisora": "...", "imagenUrl": "..." }
      */
     @Override
     @Transactional

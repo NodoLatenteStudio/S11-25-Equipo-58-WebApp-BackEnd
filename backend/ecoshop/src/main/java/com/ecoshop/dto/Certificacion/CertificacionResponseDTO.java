@@ -70,5 +70,14 @@ public class CertificacionResponseDTO {
      * Ejemplos: "Fair Trade International", "Carbon Trust", "USDA Organic"
      */
     private String entidadEmisora;
+
+    /**
+     * URL de la imagen del sello de certificación.
+     * 
+     * Dirección de la imagen del sello de certificación para mostrar en el frontend.
+     * 
+     * Ejemplos: "https://i.ibb.co/xxxxx/carbon-neutral.png", "https://cdn.example.com/certificaciones/b-corp.png"
+     */
+    private String imagenUrl;
 }
 

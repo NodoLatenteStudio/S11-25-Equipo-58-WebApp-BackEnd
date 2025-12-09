@@ -85,6 +85,17 @@ public class Certificacion {
     private String entidadEmisora;
 
     /**
+     * URL de la imagen del sello de certificación.
+     * 
+     * Campo opcional que almacena la dirección de la imagen del sello de certificación.
+     * Útil para mostrar el sello en el frontend.
+     * 
+     * Ejemplos: "https://i.ibb.co/xxxxx/carbon-neutral.png", "https://cdn.example.com/certificaciones/b-corp.png"
+     */
+    @Column(name = "imagen_url")
+    private String imagenUrl;
+
+    /**
      * Productos que tienen esta certificación.
      * 
      * @ManyToMany: Relación many-to-many con la entidad Producto.
