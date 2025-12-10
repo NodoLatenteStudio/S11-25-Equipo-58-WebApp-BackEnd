@@ -208,28 +208,35 @@ public class ProductoController {
     /**
      * Actualiza un producto existente en la base de datos.
      * 
+     * Este endpoint permite actualizaciones parciales: solo se actualizan los campos
+     * que se envían en el body. Los campos que no se envían permanecen sin cambios.
+     * 
      * @param id Identificador único del producto a actualizar
-     * @param dto Nuevos datos del producto (viene en el cuerpo de la petición)
+     * @param dto Datos del producto a actualizar (viene en el cuerpo de la petición)
      * @return ResponseEntity con el producto actualizado y código HTTP 200 (OK)
      * @throws com.ecoshop.exception.ResourceNotFoundException si el producto o la marca no existen
-     * @throws org.springframework.web.bind.MethodArgumentNotValidException si los datos no son válidos
      * @throws com.ecoshop.exception.BadRequestException si el SKU ya existe o si alguna certificación no existe
+     * @throws com.ecoshop.exception.ForbiddenException si el usuario no tiene permisos para actualizar el producto
      * 
-     * Validaciones aplicadas (definidas en ProductoRequestDTO):
-     * - Las mismas validaciones que en createProducto
+     * Ejemplo de uso - Actualización parcial (solo imagenUrl):
+     * PUT http://localhost:8080/api/v1/productos/1
+     * Body: {
+     *   "imagenUrl": "https://i.ibb.co/xxxxx/producto.jpg"
+     * }
      * 
-     * Ejemplo de uso:
+     * Ejemplo de uso - Actualización completa:
      * PUT http://localhost:8080/api/v1/productos/1
      * Body: {
      *   "nombre": "Botella actualizada",
      *   "precio": 15990,
-     *   "stock": 30
+     *   "stock": 30,
+     *   "imagenUrl": "https://i.ibb.co/xxxxx/producto.jpg"
      * }
      */
     @PutMapping("/{id}")
     public ResponseEntity<ProductoResponseDTO> updateProducto(
             @PathVariable Integer id, 
-            @Valid @RequestBody ProductoRequestDTO dto,
+            @RequestBody ProductoRequestDTO dto,
             Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         
