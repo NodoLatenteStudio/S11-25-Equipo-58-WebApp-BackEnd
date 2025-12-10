@@ -249,8 +249,8 @@ public class ProductoController {
         boolean puedeActualizarMarcaActual = marcaDelProducto.getUsuarioId().equals(usuario.getUsuarioId());
         boolean esAdmin = "admin".equalsIgnoreCase(usuario.getRol());
         
-        // Si está cambiando la marca, validar que sea dueño de la nueva marca
-        if (!productoExistente.getMarcaId().equals(dto.getMarcaId())) {
+        // Si está cambiando la marca (y se proporciona un nuevo marcaId), validar que sea dueño de la nueva marca
+        if (dto.getMarcaId() != null && !productoExistente.getMarcaId().equals(dto.getMarcaId())) {
             MarcaResponseDTO nuevaMarca = marcaService.getMarcaById(dto.getMarcaId());
             boolean puedeActualizarNuevaMarca = nuevaMarca.getUsuarioId().equals(usuario.getUsuarioId());
             
@@ -263,7 +263,7 @@ public class ProductoController {
                 );
             }
         } else {
-            // Si no cambia la marca, validar que sea dueño de la marca actual
+            // Si no cambia la marca (o no se proporciona marcaId en actualización parcial), validar que sea dueño de la marca actual
             if (!puedeActualizarMarcaActual && !esAdmin) {
                 throw new ForbiddenException(
                     String.format("No tienes permisos para actualizar este producto. " +
