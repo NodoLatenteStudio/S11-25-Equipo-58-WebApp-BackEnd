@@ -209,11 +209,11 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional(readOnly = true)
     public ProductoPaginadoResponse getAllProductosPaginados(Integer page, Integer size) {
-        // Valores por defecto: página 1, tamaño 6 (según requerimiento de UX/UI)
+        // Valores por defecto: página 1, tamaño 8 (según requerimiento de UX/UI)
         // Convertir página basada en 1 a índice basado en 0 para Spring Data
         int paginaUsuario = (page != null && page >= 1) ? page : 1;
         int paginaInterna = paginaUsuario - 1; // Convertir a índice basado en 0
-        int tamano = (size != null && size > 0) ? size : 6;
+        int tamano = (size != null && size > 0) ? size : 8;
         
         // Crear Pageable con los parámetros (índice basado en 0)
         Pageable pageable = PageRequest.of(paginaInterna, tamano);
@@ -313,11 +313,11 @@ public class ProductoServiceImpl implements ProductoService {
             Integer page,
             Integer size) {
         
-        // Valores por defecto: página 1, tamaño 6 (según requerimiento de UX/UI)
+        // Valores por defecto: página 1, tamaño 8 (según requerimiento de UX/UI)
         // Convertir página basada en 1 a índice basado en 0 para cálculos internos
         int paginaUsuario = (page != null && page >= 1) ? page : 1;
         int paginaInterna = paginaUsuario - 1; // Convertir a índice basado en 0
-        int tamano = (size != null && size > 0) ? size : 6;
+        int tamano = (size != null && size > 0) ? size : 8;
         
         // Obtener todos los productos primero (con certificaciones y marca cargadas)
         List<Producto> todosProductos = productoRepository.findAll();
@@ -749,7 +749,7 @@ public class ProductoServiceImpl implements ProductoService {
             return ProductoPaginadoResponse.builder()
                     .productos(List.of())
                     .paginaActual(1)
-                    .tamanoPagina(6)
+                    .tamanoPagina(8)
                     .totalElementos(0L)
                     .totalPaginas(0)
                     .tieneSiguiente(false)
@@ -759,11 +759,11 @@ public class ProductoServiceImpl implements ProductoService {
                     .build();
         }
         
-        // Valores por defecto: página 1, tamaño 6 (según requerimiento de UX/UI)
+        // Valores por defecto: página 1, tamaño 8 (según requerimiento de UX/UI)
         // Convertir página basada en 1 a índice basado en 0 para cálculos internos
         int paginaUsuario = (page != null && page >= 1) ? page : 1;
         int paginaInterna = paginaUsuario - 1; // Convertir a índice basado en 0
-        int tamano = (size != null && size > 0) ? size : 6;
+        int tamano = (size != null && size > 0) ? size : 8;
         
         // Buscar productos por nombre (búsqueda parcial, case-insensitive)
         List<Producto> todosProductos = productoRepository.findByNombreContainingIgnoreCase(query.trim());

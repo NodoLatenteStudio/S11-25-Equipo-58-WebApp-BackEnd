@@ -67,7 +67,7 @@ public interface ProductoService {
      * Obtiene todos los productos con paginación.
      * 
      * @param page Número de página (basado en 1, por defecto 1)
-     * @param size Tamaño de la página (por defecto 6)
+     * @param size Tamaño de la página (por defecto 8)
      * @return ProductoPaginadoResponse con los productos paginados y metadatos de paginación
      */
     ProductoPaginadoResponse getAllProductosPaginados(Integer page, Integer size);
@@ -113,7 +113,7 @@ public interface ProductoService {
      * @param certificacionId ID de la certificación (opcional)
      * @param ordenarPor Criterio de ordenamiento: "precio_asc", "precio_desc", "impacto_asc", "impacto_desc" (opcional)
      * @param page Número de página (basado en 1, por defecto 1)
-     * @param size Tamaño de la página (por defecto 6)
+     * @param size Tamaño de la página (por defecto 8)
      * @return ProductoPaginadoResponse con los productos filtrados, ordenados y paginados
      */
     ProductoPaginadoResponse buscarProductosPaginados(
@@ -169,7 +169,7 @@ public interface ProductoService {
      * 
      * @param query Término de búsqueda (nombre o parte del nombre)
      * @param page Número de página (basado en 1, por defecto 1)
-     * @param size Tamaño de la página (por defecto 6)
+     * @param size Tamaño de la página (por defecto 8)
      * @return ProductoPaginadoResponse con los productos que coinciden con el nombre, paginados
      */
     ProductoPaginadoResponse buscarProductosPorNombre(String query, Integer page, Integer size);

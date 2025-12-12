@@ -849,7 +849,7 @@ Todos los siguientes endpoints requieren un token JWT válido de Clerk:
 - Actualización parcial (solo campos enviados se actualizan)
 - Validaciones de negocio (precio, nombre, SKU único)
 - Manejo de fechas de creación automático
-- Paginación (6 productos por página, página inicial: 1)
+- Paginación (8 productos por página, página inicial: 1)
 
 ### Módulo de Certificaciones
 

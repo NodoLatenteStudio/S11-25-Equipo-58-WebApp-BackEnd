@@ -130,10 +130,10 @@ public class ProductoController {
      * Este endpoint soporta múltiples filtros, ordenamiento y paginación:
      * - Filtros: categoria, impacto, marca, material, origen, precioMin, precioMax, certificacion
      * - Ordenamiento: precio_asc, precio_desc, impacto_asc, impacto_desc
-     * - Paginación: page (número de página, basado en 1), size (tamaño de página, por defecto 6)
+     * - Paginación: page (número de página, basado en 1), size (tamaño de página, por defecto 8)
      * 
      * TODOS los resultados están paginados, incluso cuando se aplican filtros.
-     * Por defecto, se muestran 6 productos por página según requerimiento UX/UI.
+     * Por defecto, se muestran 8 productos por página según requerimiento UX/UI.
      * La primera página es la número 1 (no 0).
      * 
      * @param categoria ID de la categoría (opcional)
@@ -146,14 +146,14 @@ public class ProductoController {
      * @param certificacion ID de la certificación (opcional)
      * @param ordenarPor Criterio de ordenamiento (opcional)
      * @param page Número de página (opcional, basado en 1, por defecto 1)
-     * @param size Tamaño de página (opcional, por defecto 6 según requerimiento UX/UI)
+     * @param size Tamaño de página (opcional, por defecto 8 según requerimiento UX/UI)
      * @return ResponseEntity con productos paginados y código HTTP 200 (OK)
      * 
      * Ejemplo de uso:
      * GET /api/v1/productos
-     * GET /api/v1/productos?page=1&size=6
-     * GET /api/v1/productos?categoria=1&impacto=bajo_impacto&precioMin=1000&precioMax=50000&ordenarPor=precio_asc&page=1&size=6
-     * GET /api/v1/productos?page=2&size=6&categoria=1
+     * GET /api/v1/productos?page=1&size=8
+     * GET /api/v1/productos?categoria=1&impacto=bajo_impacto&precioMin=1000&precioMax=50000&ordenarPor=precio_asc&page=1&size=8
+     * GET /api/v1/productos?page=2&size=8&categoria=1
      */
     @GetMapping
     public ResponseEntity<ProductoPaginadoResponse> getAllProductos(
@@ -383,17 +383,17 @@ public class ProductoController {
      * 
      * Este endpoint permite buscar productos por nombre (búsqueda parcial, case-insensitive).
      * Solo busca en el campo nombre, no en la descripción.
-     * Los resultados están paginados (6 productos por página por defecto, primera página es 1).
+     * Los resultados están paginados (8 productos por página por defecto, primera página es 1).
      * 
      * @param query Término de búsqueda (nombre o parte del nombre)
      * @param page Número de página (opcional, basado en 1, por defecto 1)
-     * @param size Tamaño de página (opcional, por defecto 6 según requerimiento UX/UI)
+     * @param size Tamaño de página (opcional, por defecto 8 según requerimiento UX/UI)
      * @return ResponseEntity con productos paginados y código HTTP 200 (OK)
      * 
      * Ejemplo de uso:
      * GET /api/v1/productos/buscar?q=botella
-     * GET /api/v1/productos/buscar?q=reutilizable&page=1&size=6
-     * GET /api/v1/productos/buscar?q=botella&page=2&size=6
+     * GET /api/v1/productos/buscar?q=reutilizable&page=1&size=8
+     * GET /api/v1/productos/buscar?q=botella&page=2&size=8
      */
     @GetMapping("/buscar")
     public ResponseEntity<ProductoPaginadoResponse> buscarProductosPorNombre(
